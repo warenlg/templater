@@ -3,21 +3,23 @@
 
 from pickle import dump as pickle_dump, load as pickle_load
 from re import compile as re_compile
+
 from _templater import longest_match as lcs
 
 
-type_regexp = type(re_compile(''))
+TYPE_REGEXP = type(re_compile(''))
 MARKER = '|||'
 NAMED_MARKER = '{{{{{}}}}}' # '{{sample-var}}'
 
-class Templater(object):
+
+class Templater:
     def __init__(self, template=None, marker='|||', min_block_size=1):
         self._template = template
         self._min_block_size = min_block_size
         self._marker = marker
         self._headers = None
         self._named_markers = False
-        if type(template) in (str,):
+        if isinstance(template, str):
             self._template, self._named_markers, self._headers = \
                     _create_template_from_string(template, marker)
 
@@ -36,8 +38,7 @@ class Templater(object):
         result = _parser(self._template, text)
         if self._named_markers:
             return dict(zip(self._headers, result))
-        else:
-            return result
+        return result
 
     def join(self, elements):
         elements_length = len(elements)
@@ -62,9 +63,8 @@ class Templater(object):
         parse data. It's worth using this method since learning process
         generally cost a lot of time compared to parsing.
         """
-        fp = open(filename, 'w')
-        pickle_dump(self, fp)
-        fp.close()
+        with open(filename, 'w') as dumped_file:
+            pickle_dump(self, dumped_file)
 
     @staticmethod
     def load(filename):
@@ -74,9 +74,8 @@ class Templater(object):
         the template definition from a file using cPickle, creates a
         ``Templater`` object with the definition and returns it.
         """
-        fp = open(filename)
-        processed_template = pickle_load(fp)
-        fp.close()
+        with open(filename, 'r') as loaded_file:
+            processed_template = pickle_load(loaded_file)
         return processed_template
 
     def save(self, filename, marker=None, headers=None):
@@ -94,17 +93,17 @@ class Templater(object):
             blanks = [marker] * self._template.count(None)
         else:
             if headers is not None and len(headers) != len(self._headers):
-                raise AttributeError('Incorrect number of headers (passed:'
-                                     ' {}, expected: {})'.format(
-                                     len(headers), len(self._headers)))
+                raise AttributeError(
+                    f'Incorrect number of headers (passed: {len(headers)}, expected: {len(self._headers)})'
+                )
             if marker is None:
                 marker = NAMED_MARKER
             if headers is None:
                 headers = self._headers
             blanks = [marker.format(header) for header in headers]
-        fp = open(filename, 'w')
-        fp.write(self.join(blanks) + '\n')
-        fp.close()
+
+        with open(filename, 'w') as output_file:
+            output_file.write(self.join(blanks) + '\n')
 
     @staticmethod
     def open(filename, marker=MARKER):
@@ -116,9 +115,9 @@ class Templater(object):
         ``Templater`` object and ``open`` saves only the template string,
         filling the blanks with ``marker``.
         """
-        fp = open(filename)
-        contents = fp.read()
-        fp.close()
+        with open(filename, 'r') as input_flie:
+            contents = input_flie.read()
+
         if contents[-2:] == '\r\n':
             contents = contents[:-2]
         elif contents[-1] == '\n':
@@ -139,9 +138,9 @@ class Templater(object):
 
         If the file ends with ``\n`` or ``\r\n``, it'll be removed.
         """
-        fp = open(filename)
-        contents = fp.read()
-        fp.close()
+        with open(filename) as input_flie:
+            contents = input_flie.read()
+
         if contents[-2:] == '\r\n':
             contents = contents[:-2]
         elif contents[-1] == '\n':
@@ -167,28 +166,37 @@ def _parser(template, text):
             text_index += element_length
     return result
 
-def _create_template(str_1, str_2, se_1, se_2,
-                     min_block_size=1):
-    start_1, end_1 = se_1
-    start_2, end_2 = se_2
-    lcs_size, lcs_1_start, lcs_2_start = lcs(str_1[start_1:end_1],
-                                         str_2[start_2:end_2])
+
+def _create_template(str_1, str_2, start_end_1, start_end_2, min_block_size=1):
+    start_1, end_1 = start_end_1
+    start_2, end_2 = start_end_2
+    lcs_size, lcs_1_start, lcs_2_start = lcs(
+        str_1[start_1:end_1],
+        str_2[start_2:end_2]
+    )
+
     if lcs_size < min_block_size:
         return [None]
-    else:
-        common = str_1[start_1 + lcs_1_start:start_1 + lcs_1_start + lcs_size]
-        return _create_template(str_1, str_2,
-                                (start_1, start_1 + lcs_1_start),
-                                (start_2, start_2 + lcs_2_start),
-                                min_block_size) + \
-               [str_1[start_1 + lcs_1_start:start_1 + lcs_1_start + lcs_size]] + \
-               _create_template(str_1, str_2,
-                                (start_1 + lcs_1_start + lcs_size, end_1),
-                                (start_2 + lcs_2_start + lcs_size, end_2),
-                                min_block_size)
+
+    return (
+        _create_template(
+            str_1, str_2,
+            (start_1, start_1 + lcs_1_start),
+            (start_2, start_2 + lcs_2_start),
+            min_block_size
+        ) +
+        [str_1[start_1 + lcs_1_start:start_1 + lcs_1_start + lcs_size]] +
+        _create_template(
+            str_1, str_2,
+            (start_1 + lcs_1_start + lcs_size, end_1),
+            (start_2 + lcs_2_start + lcs_size, end_2),
+            min_block_size
+        )
+    )
+
 
 def _create_template_from_string(text, marker):
-    named_markers = type(marker) == type_regexp
+    named_markers = type(marker) == TYPE_REGEXP
     if named_markers:
         results = marker.split(text)
         tokens, headers = [x for x in results[::2] if x], results[1::2]
