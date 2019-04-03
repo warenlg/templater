@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-from cPickle import dump as pickle_dump, load as pickle_load
+from pickle import dump as pickle_dump, load as pickle_load
 from re import compile as re_compile
 from _templater import longest_match as lcs
 
@@ -17,7 +17,7 @@ class Templater(object):
         self._marker = marker
         self._headers = None
         self._named_markers = False
-        if type(template) in (str, unicode):
+        if type(template) in (str,):
             self._template, self._named_markers, self._headers = \
                     _create_template_from_string(template, marker)
 
@@ -167,8 +167,10 @@ def _parser(template, text):
             text_index += element_length
     return result
 
-def _create_template(str_1, str_2, (start_1, end_1), (start_2, end_2),
+def _create_template(str_1, str_2, se_1, se_2,
                      min_block_size=1):
+    start_1, end_1 = se_1
+    start_2, end_2 = se_2
     lcs_size, lcs_1_start, lcs_2_start = lcs(str_1[start_1:end_1],
                                          str_2[start_2:end_2])
     if lcs_size < min_block_size:

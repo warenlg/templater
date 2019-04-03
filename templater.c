@@ -103,11 +103,26 @@ static PyObject * function_longest_match(PyObject *self, PyObject *args) {
     return Py_BuildValue("(iii)", best_size, a_offset, b_offset);
 }
 
+
 static PyMethodDef ModuleMethods[] = {
     {"longest_match", function_longest_match, METH_VARARGS, "Given two strings, determines the longest common substring and returns a tuple of (best_size, a_offset, b_offset)."},
     {NULL, NULL, 0, NULL}        // sentinel
 };
-
+/*
 PyMODINIT_FUNC init_templater(void) {
-    (void) Py_InitModule("_templater", ModuleMethods);
+    (void) ("_templater", ModuleMethods);
+}
+*/
+
+static struct PyModuleDef _templater = {
+    PyModuleDef_HEAD_INIT,
+    "_templater",
+    "",
+    -1,
+    ModuleMethods
+};
+
+PyMODINIT_FUNC PyInit__templater(void)
+{
+    return PyModule_Create(&_templater);
 }
