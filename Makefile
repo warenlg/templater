@@ -1,22 +1,29 @@
 clean:
 	rm -rf *.pyc **/*.pyc reg_settings* .coverage MANIFEST build/ dist/ \
-	       _templater.so readme.html
+	       _templater.*so readme.html
+init:
+	pip install --user --upgrade pipenv
+	pipenv --python 3.6
+	pipenv install --dev
 
 build:
-	python setup.py build
+	pipenv run python setup.py build_ext --inplace
+	pipenv run python setup.py build
 
 install:
-	python setup.py install
+	pipenv run python setup.py install
 
-test:	clean
-	./run-tests.sh
-	make clean
+test: clean build
+	pipenv run pytest
 
-sdist:	clean test
-	python setup.py sdist
+cov: clean build
+	pipenv run pytest --cov-report term-missing --cov=. tests
+
+sdist: clean test
+	pipenv run python setup.py sdist
 
 upload:	clean test
-	python setup.py sdist upload
+	pipenv run python setup.py sdist upload
 	make clean
 
 readme:
