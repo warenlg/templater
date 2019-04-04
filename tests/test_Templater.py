@@ -266,7 +266,7 @@ def test_template_with_named_markers_should_not_be_able_to_learn():
     except NotImplementedError:
         pass
     else:
-        print t._template
+        print(t._template)
         assert 'NotImplementedError not raised' == False
 
 def test_should_be_able_to_add_headers_to_a_template_without_named_markers():

@@ -20,19 +20,26 @@ class Templater:
         self._headers = None
         self._named_markers = False
         if isinstance(template, str):
-            self._template, self._named_markers, self._headers = \
-                    _create_template_from_string(template, marker)
+            self._template, self._named_markers, self._headers = (
+                _create_template_from_string(template, marker)
+            )
 
     def learn(self, new_text):
         if self._named_markers:
-            raise NotImplementedError("Actually you can't learn in a template "
-                                      "with named markers")
+            raise NotImplementedError(
+                "Actually you can't learn in a template "
+                "with named markers"
+            )
+
         if self._template is None:
             text = new_text
         else:
             text = '\0\0\0'.join(filter(lambda x: x is not None, self._template))
-        self._template = _create_template(new_text, text, (0, len(new_text)),
-                                          (0, len(text)), self._min_block_size)
+        self._template = _create_template(
+            new_text, text,
+            (0, len(new_text)), (0, len(text)),
+            self._min_block_size
+        )
 
     def parse(self, text):
         result = _parser(self._template, text)
@@ -63,7 +70,7 @@ class Templater:
         parse data. It's worth using this method since learning process
         generally cost a lot of time compared to parsing.
         """
-        with open(filename, 'w') as dumped_file:
+        with open(filename, 'wb') as dumped_file:
             pickle_dump(self, dumped_file)
 
     @staticmethod
@@ -74,7 +81,7 @@ class Templater:
         the template definition from a file using cPickle, creates a
         ``Templater`` object with the definition and returns it.
         """
-        with open(filename, 'r') as loaded_file:
+        with open(filename, 'rb') as loaded_file:
             processed_template = pickle_load(loaded_file)
         return processed_template
 
