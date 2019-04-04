@@ -3,10 +3,12 @@
 
 from os import unlink
 from re import compile as re_compile
-from templater import Templater, MARKER, NAMED_MARKER
+
+from templater import Templater, NAMED_MARKER
 
 
 regexp_marker = re_compile(r'{{([a-zA-Z0-9_-]*)}}')
+
 
 def read_file_and_delete(filename):
     fp = open(filename)
@@ -15,10 +17,12 @@ def read_file_and_delete(filename):
     unlink(filename)
     return contents
 
+
 def write_file(filename, contents):
     fp = open(filename, 'w')
     fp.write(contents)
     fp.close()
+
 
 def test_new_learn_text_trying_to_delete_some_variable():
     template = Templater()
@@ -29,6 +33,7 @@ def test_new_learn_text_trying_to_delete_some_variable():
     expected = [None, '<b> ', None, ' and ', None, ' </b>', None]
     assert result == expected
 
+
 def test_parse_should_return_a_list_with_the_blanks_contents():
     template = Templater()
     template.learn('a b d')
@@ -36,6 +41,7 @@ def test_parse_should_return_a_list_with_the_blanks_contents():
     result = template.parse('a b c d')
     expected = ['', 'b c', '']
     assert result == expected
+
 
 def test_Templater_parse_file_should_open_and_parse_a_file_from_filename():
     template = Templater('+<u>+</u>+', marker='+')
@@ -54,6 +60,7 @@ def test_Templater_parse_file_should_open_and_parse_a_file_from_filename():
     unlink('test.html')
     assert expected == result_2
 
+
 def test_join_should_fill_the_blanks_with_elements_received():
     template = Templater()
     template.learn('a b d')
@@ -63,16 +70,18 @@ def test_join_should_fill_the_blanks_with_elements_received():
     expected = 'a b c d'
     assert result == expected
 
+
 def test_join_with_less_parameters_than_variables_should_raise_AttributeError():
     template = Templater()
     template.learn('a b d')
     template.learn('a e d')
     try:
-        result = template.join([''])
+        _ = template.join([''])
     except AttributeError:
         pass
     else:
         assert 'AttributeError not raised!' == False
+
 
 def test_Templater_should_optionally_import_pre_processed_template():
     pre_processed = [None, '<u>', None, '</u>', None]
@@ -80,11 +89,13 @@ def test_Templater_should_optionally_import_pre_processed_template():
     assert template._template == pre_processed
     assert template.join(['', 'python', '']) == '<u>python</u>'
 
+
 def test_Templater_should_optionally_import_template_as_string_with_marks():
     template = Templater(template='<b>|||</b>', marker='|||')
     result_template = template._template
     assert result_template == [None, '<b>', None, '</b>', None]
     assert template.join(['', 'spam eggs', '']) == '<b>spam eggs</b>'
+
 
 def test_Templater_dump_and_load_should_pickle_and_unpickle():
     processed_template = [None, '<b>', None, '</b><u>', None, '</u>', None]
@@ -99,6 +110,7 @@ def test_Templater_dump_and_load_should_pickle_and_unpickle():
     assert expected_1 == result_1
     assert expected_2 == result_2
 
+
 def test_should_be_able_to_adjust_minimum_size_of_a_block():
     t = Templater(min_block_size=2)
     t.learn('git and pyth')
@@ -107,6 +119,7 @@ def test_should_be_able_to_adjust_minimum_size_of_a_block():
     result = t._template
     assert expected == result
 
+
 def test_Templater_save_should_save_template_as_a_raw_file_with_markers():
     processed_template = [None, '<b>', None, '</b><u>', None, '</u>', None]
     t = Templater(template=processed_template)
@@ -114,6 +127,7 @@ def test_Templater_save_should_save_template_as_a_raw_file_with_markers():
     result = read_file_and_delete('test.html')
     expected = '|||<b>|||</b><u>|||</u>|||\n'
     assert expected == result
+
 
 def test_Templater_should_accept_named_markers_in_init():
     template = '{{start}}<b>{{middle}}</b>{{end}}'
@@ -126,6 +140,7 @@ def test_Templater_should_accept_named_markers_in_init():
     expected_2 = ['start', 'middle', 'end']
     assert expected_2 == result_2
 
+
 def test_Templater_open_should_load_template_from_a_raw_file_with_markers():
     write_file('test.html', '|||<b>|||</b><u>|||</u>|||')
     t = Templater.open('test.html', marker='|||')
@@ -133,6 +148,7 @@ def test_Templater_open_should_load_template_from_a_raw_file_with_markers():
     result = t._template
     expected = [None, '<b>', None, '</b><u>', None, '</u>', None]
     assert expected == result
+
 
 def test_Templater_open_should_remove_leading_linefeed_if_there_is_some():
     fp = open('test.html', 'w')
@@ -152,6 +168,7 @@ def test_Templater_open_should_remove_leading_linefeed_if_there_is_some():
     result_2 = t._template
     assert expected == result_2
 
+
 def test_named_markers_should_work():
     write_file('test.html',
                '|||[first]<b>|||[second]</b><u>|||[third]</u>|||[fourth]')
@@ -166,6 +183,7 @@ def test_named_markers_should_work():
                   'fourth': ''}
     assert expected_2 == result_2
 
+
 def test_should_not_have_named_marks_without_nothing_in_the_middle():
     write_file('test.html', '{{first}}{{second}}<u>{{text}}</u>{{last}}')
     try:
@@ -174,6 +192,7 @@ def test_should_not_have_named_marks_without_nothing_in_the_middle():
         pass
     else:
         assert "ValueError not raised!" == False
+
 
 def test_if_there_are_no_named_marker_in_the_start_of_template():
     write_file('test.html', '<u>{{text}}</u>{{end}}')
@@ -184,6 +203,7 @@ def test_if_there_are_no_named_marker_in_the_start_of_template():
     else:
         unlink('test.html')
         assert "ValueError not raised!" == False
+
 
 def test_raise_ValueError_if_there_is_no_named_marker_in_the_end_of_template():
     write_file('test.html', '{{start}}<u>{{text}}</u>')
@@ -202,12 +222,14 @@ def test_raise_ValueError_if_there_is_no_named_marker_in_the_end_of_template():
 #    YES |                  NO | marker          / ignore headers
 #    YES |                 YES | marker.format() / headers or self._headers
 
+
 def test_save_should_use_self_marker_if_no_marker_supplied():
     t = Templater(template='+<u>+</u>+', marker='+')
     t.save('test.html')
     result = read_file_and_delete('test.html')
     expected = '+<u>+</u>+\n'
     assert expected == result
+
 
 def test_save_should_use_NAMED_MARKER_if_template_has_named_markers_and_no_marker_supplied():
     t = Templater(template='{{one}}<u>{{two}}</u>{{three}}',
@@ -218,12 +240,14 @@ def test_save_should_use_NAMED_MARKER_if_template_has_named_markers_and_no_marke
     expected = t.join(named_markers) + '\n'
     assert expected == result
 
+
 def test_save_should_use_marker_if_supplied_and_template_hasnt_named_markers():
     t = Templater(template='+<u>+</u>+', marker='+')
     t.save('test.html', marker='%%')
     result = read_file_and_delete('test.html')
     expected = '%%<u>%%</u>%%\n'
     assert expected == result
+
 
 def test_save_should_use_python_format_if_marker_is_supplied_and_template_has_named_markers():
     t = Templater(template='{{start}}<u>{{text}}</u>{{end}}',
@@ -232,6 +256,7 @@ def test_save_should_use_python_format_if_marker_is_supplied_and_template_has_na
     result = read_file_and_delete('test.html')
     expected = '[--start--]<u>[--text--]</u>[--end--]\n'
     assert expected == result
+
 
 def test_save_should_use_headers_instead_of_self_headers_if_supplied():
     t = Templater(template='{{one}}<u>{{two}}</u>{{three}}',
@@ -247,6 +272,7 @@ def test_save_should_use_headers_instead_of_self_headers_if_supplied():
     expected_2 = '[--a--]<u>[--b--]</u>[--c--]' + '\n'
     assert expected_2 == result_2
 
+
 def test_passing_headers_with_different_size_from_self_headers_should_raise_AttributeError():
     t = Templater(template='{{one}}<u>{{two}}</u>{{three}}',
                   marker=regexp_marker)
@@ -257,6 +283,7 @@ def test_passing_headers_with_different_size_from_self_headers_should_raise_Attr
     else:
         unlink('test.html')
         raise 'AttributeError not raised!'
+
 
 def test_template_with_named_markers_should_not_be_able_to_learn():
     t = Templater(template='{{one}}<u>{{two}}</u>{{three}}',
@@ -269,12 +296,14 @@ def test_template_with_named_markers_should_not_be_able_to_learn():
         print(t._template)
         assert 'NotImplementedError not raised' == False
 
+
 def test_should_be_able_to_add_headers_to_a_template_without_named_markers():
     t = Templater(template='|||<u>|||</u>|||', marker='|||')
     t.add_headers(['one', 'two', 'three'])
     result = t.parse('a<u>b</u>c')
     expected = {'one': 'a', 'two': 'b', 'three': 'c'}
     assert result == expected
+
 
 def test_add_headers_should_raise_ValueError_if_number_of_blanks_differ_from_number_of_headers():
     t = Templater(template='|||<u>|||</u>|||', marker='|||')

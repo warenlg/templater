@@ -11,12 +11,14 @@ def test_different_strings_should_return_one_blank():
     expected = [None]
     assert result == expected
 
+
 def test_equal_strings_should_return_one_block():
     str_1 = '<b> asd </b>'
     str_2 = '<b> asd </b>'
     result = _create_template(str_1, str_2, (0, len(str_1)), (0, len(str_2)))
     expected = [None, '<b> asd </b>', None]
     assert result == expected
+
 
 def test_different_strings_with_same_size():
     str_1 = 'a1'
@@ -37,12 +39,14 @@ def test_different_strings_with_same_size():
     expected_3 = [None, '<b> ', None, ' </b>', None]
     assert result_3 == expected_3
 
+
 def test_different_strings_with_different_size():
     str_1 = '<b> asd </b>'
     str_2 = '<b> qwe123 </b>'
     result = _create_template(str_1, str_2, (0, len(str_1)), (0, len(str_2)))
     expected = [None, '<b> ', None, ' </b>', None]
     assert result == expected
+
 
 def test_different_strings_with_one_of_size_zero():
     str_1 = '<b> asd </b>'
@@ -51,6 +55,7 @@ def test_different_strings_with_one_of_size_zero():
     expected = [None, '<b> ', None, ' </b>', None]
     assert result == expected
 
+
 def test_more_than_one_variable_with_same_size():
     str_1 = '<b> asd </b><u> 123 </u>'
     str_2 = '<b> qwe </b><u> 456 </u>'
@@ -58,12 +63,14 @@ def test_more_than_one_variable_with_same_size():
     expected = [None, '<b> ', None, ' </b><u> ', None, ' </u>', None]
     assert result == expected
 
+
 def test_more_than_one_variable_with_different_sizes():
     str_1 = '<b> asdfgh </b><u> 123 </u>'
     str_2 = '<b> qwe </b><u> 456qwe </u>'
     result = _create_template(str_1, str_2, (0, len(str_1)), (0, len(str_2)))
     expected = [None, '<b> ', None, ' </b><u> ', None, ' </u>', None]
     assert result == expected
+
 
 def test_min_block_size():
     str_1 = 'my favorite color is blue'
