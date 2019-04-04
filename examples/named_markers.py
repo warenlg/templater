@@ -10,6 +10,6 @@ template = Templater('{{first-var}}<b>{{second-var}}</b>{{third-var}}',
                      marker=regexp_marker)
 # regexp marker also works for Templater.open to specify named markers
 result = template.parse('This <b> is </b> a test.') # returns a dict
-print result
+print(result)
 
 template.save('template-with-named-markers.html', marker='{{{{{}}}}}')

@@ -5,4 +5,4 @@ from templater import Templater
 
 
 template = Templater(template='<b>||| and |||</b>', marker='|||')
-print template.join(['', 'red', 'blue', '']) # prints '<b>red and blue</b>'
+print(template.join(['', 'red', 'blue', ''])) # prints '<b>red and blue</b>'
