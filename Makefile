@@ -13,6 +13,9 @@ build:
 install:
 	pipenv run python setup.py install
 
+pylint:
+	pipenv run pylint templater.py examples
+
 test: clean build
 	pipenv run pytest
 
